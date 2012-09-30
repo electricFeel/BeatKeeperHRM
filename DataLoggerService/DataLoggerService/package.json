@@ -1,0 +1,11 @@
+{
+  "name": "DataLoggerService",
+  "description": "RESTful webservice that logs HRM data to the cloud",
+  "version": "0.1.0",
+  "author": "Omar and Amir",
+  "dependencies": {
+    "mongodb": "~1.1.7",
+    "restify": "~1.4.4"
+  },
+  "devDependencies": {}
+}
