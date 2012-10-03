@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "author": "Omar and Amir",
   "dependencies": {
-    "mongodb": "~1.1.7",
-    "restify": "~1.4.4"
+    "restify": "~1.4.4",
+    "mongoskin": "~0.4.4"
   },
   "devDependencies": {}
 }
