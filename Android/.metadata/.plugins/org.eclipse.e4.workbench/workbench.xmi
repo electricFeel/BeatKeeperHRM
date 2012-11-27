@@ -3,7 +3,7 @@
   <tags>activeSchemeId:org.eclipse.ui.defaultAcceleratorConfiguration</tags>
   <children xsi:type="basic:TrimmedWindow" xmi:id="_HBZXgg0FEeK0W9SkEvPvDg" elementId="IDEWindow" contributorURI="platform:/plugin/org.eclipse.ui.workbench" selectedElement="_HSuYEA0FEeK0W9SkEvPvDg" x="82" y="56" width="1325" height="768">
     <tags>topLevel</tags>
-    <children xsi:type="basic:PartSashContainer" xmi:id="_HSuYEA0FEeK0W9SkEvPvDg" selectedElement="_HSuYEQ0FEeK0W9SkEvPvDg" horizontal="true">
+    <children xsi:type="basic:PartSashContainer" xmi:id="_HSuYEA0FEeK0W9SkEvPvDg" selectedElement="_HSuYEg0FEeK0W9SkEvPvDg" horizontal="true">
       <children xsi:type="advanced:PerspectiveStack" xmi:id="_HSuYEQ0FEeK0W9SkEvPvDg" elementId="PerspectiveStack" visible="false" containerData="7500" selectedElement="_HadXwA0FEeK0W9SkEvPvDg">
         <tags>Minimized</tags>
         <tags>MinimizedByZoom</tags>
