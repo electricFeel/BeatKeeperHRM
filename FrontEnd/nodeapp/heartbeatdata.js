@@ -1,4 +1,4 @@
-modules.exports = function(app){
+module.exports = function(app){
 	var mongo = require('mongodb');
 	var Server = mongo.Server;
 	var Db = mongo.Db; 
