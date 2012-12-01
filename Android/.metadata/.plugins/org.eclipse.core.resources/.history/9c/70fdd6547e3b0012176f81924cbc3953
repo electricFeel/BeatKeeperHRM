@@ -195,7 +195,7 @@ public class MainActivity extends Activity {
     			String URI = baseURL + "users/login_token";
     			HttpPost request = new HttpPost(URI);
     			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-    			nameValuePairs.add(new BasicNameValuePair("user", userName));
+    			nameValuePairs.add(new BasicNameValuePair("user_name", userName));
     			nameValuePairs.add(new BasicNameValuePair("password", password));
     			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
     			HttpResponse resp = httpClient.execute(request);

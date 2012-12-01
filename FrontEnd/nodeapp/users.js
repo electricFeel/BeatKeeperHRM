@@ -72,13 +72,13 @@ app.post('/users/login', function (req, res) {
       var post = req.body;
       console.log('Attempting to loging user');
       console.log(post);
-      console.log(post.user_name);
+      console.log(post.user);
       console.log(post.password);
-      var server = new Server('localhost', 27017, {auto_reconnect: true});
+      var server = new Server('ec2-50-17-145-141.compute-1.amazonaws.com', 27017, {auto_reconnect: true});
       var db = new Db('beat_keeper', server);
       db.open(function(err, db){
           db.collection('users', function(err, collection){
-            collection.findOne({"user_name":post.user_name}, function(err, result){
+            collection.findOne({"user_name":post.user}, function(err, result){
               if(!err){
                 if(result === null) console.log("Error result is null");
                 if(result['password'] === post.password){
