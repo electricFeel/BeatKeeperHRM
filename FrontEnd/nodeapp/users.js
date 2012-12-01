@@ -6,6 +6,9 @@ var Db = mongo.Db;
 var uuid = require('node-uuid');
 console.log('loading users module');
 
+//'ec2-50-17-145-141.compute-1.amazonaws.com'
+var mongoServerAddress = 'localhost';
+
 //user routes
 app.get('/', function( req, res ){
   res.send( 'Hello World' );
@@ -18,7 +21,7 @@ app.post( '/users/create', function ( req, res ) {
   var userName = post.user;
   var password = post.password;
 
-  var userRecord = {"user_name" : userName, "password" : password};
+  var userRecord = {"user_name" : userName, "password" : password, "token":''};
   console.log("Attempting to create a new user");
   console.log(userRecord);
   var server = new Server('localhost', 27017, {auto_reconnect: true});
@@ -46,7 +49,7 @@ app.post('/users/login', function (req, res) {
   console.log('Attempting to loging user');
   console.log(post);
   console.log(post.user);
-  var server = new Server('localhost', 27017, {auto_reconnect: true, safe:false});
+  var server = new Server(mongoServerAddress, 27017, {auto_reconnect: true, safe:false});
   var db = new Db('beat_keeper', server);
   db.open(function(err, db){
       db.collection('users', function(err, collection){
@@ -74,7 +77,7 @@ app.post('/users/login', function (req, res) {
       console.log(post);
       console.log(post.user);
       console.log(post.password);
-      var server = new Server('ec2-50-17-145-141.compute-1.amazonaws.com', 27017, {auto_reconnect: true});
+      var server = new Server(mongoServerAddress, 27017, {auto_reconnect: true});
       var db = new Db('beat_keeper', server);
       db.open(function(err, db){
           db.collection('users', function(err, collection){
@@ -82,8 +85,9 @@ app.post('/users/login', function (req, res) {
               if(!err){
                 if(result === null) console.log("Error result is null");
                 if(result['password'] === post.password){
-                  console.log("login worked!");
                   var token = uuid.v1();
+                  collection.update({'_id': result['_id']}, {$set:{'token':token}});
+                  console.log("login worked!");
                   req.session.token = {"token":token,"user_name":result['user_name']};
                   res.contentType('json');
                   res.send({session_token:token});
