@@ -21,6 +21,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.apache.http.*;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.json.*;
 
@@ -57,7 +62,7 @@ public class MainActivity extends Activity {
        this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
         
       //Obtaining the handle to act on the CONNECT button
-        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+        final TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
 		String ErrorText  = "Not Connected to HxM ! !";
 		 tv.setText(ErrorText);
 
@@ -150,6 +155,18 @@ public class MainActivity extends Activity {
 				}
         	});
         }
+        
+        Button btnLogin = (Button) findViewById(R.id.btnLogin);
+        if(btnLogin != null){
+        	btnLogin.setOnClickListener(new OnClickListener(){
+				public void onClick(View v) {
+					//test logging into the server here
+					HTTPClient client = new HTTPClient();
+					String token = client.GetLoginToken("ayub", "omar");
+					tv.setText(token);
+				}
+        	});
+        }
     }
     private class BTBondReceiver extends BroadcastReceiver {
 		@Override
@@ -159,6 +176,35 @@ public class MainActivity extends Activity {
 			Log.d("Bond state", "BOND_STATED = " + device.getBondState());
 		}
     }
+    
+    private class HTTPClient{
+    	HttpClient httpClient = new DefaultHttpClient();
+    	String baseURL = "http://www.google.com";
+    	
+    	public HTTPClient(){
+    		
+    	}
+    	
+    	public String GetLoginToken(String userName, String password){
+    		try{
+    			// + "users/login_token"
+    			HttpPost request = new HttpPost(baseURL);
+    			JSONObject jsonObj = new JSONObject();
+    			jsonObj.put("user_name", userName);
+    			jsonObj.put("password", password);
+    			request.addHeader("content-type", "application/x-www-form-urlencoded");
+    			request.setEntity(new StringEntity(jsonObj.toString()));
+    			HttpResponse resp = httpClient.execute(request);
+    			String val = resp.getEntity().toString();
+    			System.out.println(val);
+    		}catch(Exception ex){
+    			System.out.println(ex.getMessage());
+    			System.out.println(ex.getStackTrace());
+    		}
+    		return "";
+    	}
+    }
+    
     private class BTBroadcastReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
