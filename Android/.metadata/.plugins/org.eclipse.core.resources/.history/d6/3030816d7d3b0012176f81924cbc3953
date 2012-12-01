@@ -166,7 +166,7 @@ public class MainActivity extends Activity {
 				public void onClick(View v) {
 					//test logging into the server here
 					HTTPClient client = new HTTPClient();
-					String token = client.GetLoginToken("ayub", "omar");
+					String token = client.GetLoginToken("omar", "ayub");
 					tv.setText(token);
 				}
         	});

@@ -78,7 +78,7 @@ app.post('/users/login', function (req, res) {
       var db = new Db('beat_keeper', server);
       db.open(function(err, db){
           db.collection('users', function(err, collection){
-            collection.findOne({"user_name":post.user}, function(err, result){
+            collection.findOne({"user_name":post.user_name}, function(err, result){
               if(!err){
                 if(result === null) console.log("Error result is null");
                 if(result['password'] === post.password){
