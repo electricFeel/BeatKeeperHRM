@@ -72,7 +72,7 @@ app.post('/users/login', function (req, res) {
       var post = req.body;
       console.log('Attempting to loging user');
       console.log(post);
-      console.log(post.user);
+      console.log(post.user_name);
       var server = new Server('localhost', 27017, {auto_reconnect: true});
       var db = new Db('beat_keeper', server);
       db.open(function(err, db){

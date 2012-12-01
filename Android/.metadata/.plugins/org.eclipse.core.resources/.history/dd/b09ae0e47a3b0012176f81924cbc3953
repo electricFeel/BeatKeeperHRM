@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import android.R.*;
@@ -25,11 +23,9 @@ import android.view.View.OnClickListener;
 import android.widget.*;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import org.json.*;
 
@@ -166,7 +162,7 @@ public class MainActivity extends Activity {
 				public void onClick(View v) {
 					//test logging into the server here
 					HTTPClient client = new HTTPClient();
-					String token = client.GetLoginToken("omar", "ayub");
+					String token = client.GetLoginToken("ayub", "omar");
 					tv.setText(token);
 				}
         	});
@@ -192,12 +188,12 @@ public class MainActivity extends Activity {
     	public String GetLoginToken(String userName, String password){
     		try{
     			// + "users/login_token"
-    			String URI = baseURL + "users/login_token";
-    			HttpPost request = new HttpPost(URI);
-    			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-    			nameValuePairs.add(new BasicNameValuePair("user_name", userName));
-    			nameValuePairs.add(new BasicNameValuePair("password", password));
-    			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+    			HttpPost request = new HttpPost(baseURL + "users/login_token");
+    			JSONObject jsonObj = new JSONObject();
+    			jsonObj.put("user_name", userName);
+    			jsonObj.put("password", password);
+    			request.addHeader("content-type", "application/x-www-form-urlencoded");
+    			request.setEntity(new StringEntity(jsonObj.toString()));
     			HttpResponse resp = httpClient.execute(request);
     			String val = resp.getEntity().toString();
     			System.out.println(val);
