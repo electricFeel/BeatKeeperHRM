@@ -46,7 +46,7 @@ app.post('/users/login', function (req, res) {
   console.log('Attempting to loging user');
   console.log(post);
   console.log(post.user);
-  var server = new Server('localhost', 27017, {auto_reconnect: true});
+  var server = new Server('localhost', 27017, {auto_reconnect: true, safe : false});
   var db = new Db('beat_keeper', server);
   db.open(function(err, db){
       db.collection('users', function(err, collection){
@@ -78,7 +78,7 @@ app.post('/users/login', function (req, res) {
       db.open(function(err, db){
           db.collection('users', function(err, collection){
             collection.findOne({"user_name":post.user}, function(err, result){
-              if(!err){
+              if(!err && (result != null))){
                 if(result['password'] === post.password){
                   console.log("login worked!");
                   var token = uuid.v1();
