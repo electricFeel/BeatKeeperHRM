@@ -30,6 +30,7 @@ app.configure(function(){
 });
 
 var user_routes = require('./users')(app);
+var data_routs = require('./heartbeatdata')(app);
 
 function checkAuth(req, res, next) {
   if (!req.session.user_id) {
