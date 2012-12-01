@@ -3,9 +3,13 @@ package com.example.beatkeeperHRM;
 import android.app.Activity;
 
 import android.os.Bundle;
+
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -184,10 +189,13 @@ public class MainActivity extends Activity {
     private class HTTPClient{
     	HttpClient httpClient = new DefaultHttpClient();
     	String baseURL = "http://ec2-50-17-145-141.compute-1.amazonaws.com:3002/";
+    	String sessionToken;
     	
     	public HTTPClient(){
     		
     	}
+    	
+    	
     	
     	public String GetLoginToken(String userName, String password){
     		try{
@@ -199,13 +207,40 @@ public class MainActivity extends Activity {
     			nameValuePairs.add(new BasicNameValuePair("password", password));
     			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
     			HttpResponse resp = httpClient.execute(request);
-    			String val = resp.getEntity().toString();
+    			HttpEntity val = resp.getEntity();
     			System.out.println(val);
+    			//String str_val =val.getContent().toString();
+    			InputStream stream = val.getContent();
+    			int readByte;
+    			String output = "";
+    			
+    			while((readByte = stream.read()) != -1){
+    				output += (char)readByte;
+    			}
+    			
+    			System.out.println(output);
+    			JSONObject jsonArray = new JSONObject(output);
+    			this.sessionToken = jsonArray.getString("session_token");
     		}catch(Exception ex){
     			System.out.println(ex.getMessage());
     			System.out.println(ex.getStackTrace());
     		}
-    		return "";
+    		return this.sessionToken;
+    	}
+    	
+    	public void sendData(List<Pair<Date, Double>> datas){
+    		try{
+    			String URI = baseURL + "/hbdata/add";
+    			HttpPost request = new HttpPost(URI);
+    			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+    			for(Pair<Date, Double> d: datas){
+    				nameValuePairs.add(new BasicNameValuePair(d.first.toGMTString(), d.second.toString()));
+    			}
+    			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+    			HttpResponse resp = httpClient.execute(request);
+    		}catch(Exception ex){
+    			
+    		}
     	}
     }
     
