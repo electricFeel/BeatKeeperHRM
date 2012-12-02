@@ -237,14 +237,14 @@ public class MainActivity extends Activity {
     		return this.sessionToken;
     	}
     	
-    	public void sendData(List<Pair<Time, Double>> datas){
+    	public void sendData(List<Pair<Date, Double>> datas){
     		try{
     			String URI = baseURL + "/hbdata/add";
     			HttpPost request = new HttpPost(URI);
     			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     			nameValuePairs.add(new BasicNameValuePair("session_token", this.sessionToken));
-    			for(Pair<Time, Double> d: datas){
-    				nameValuePairs.add(new BasicNameValuePair(d.first.toString(), d.second.toString()));
+    			for(Pair<Date, Double> d: datas){
+    				nameValuePairs.add(new BasicNameValuePair(d.first.toGMTString(), d.second.toString()));
     			}
     			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
     			HttpResponse resp = httpClient.execute(request);
