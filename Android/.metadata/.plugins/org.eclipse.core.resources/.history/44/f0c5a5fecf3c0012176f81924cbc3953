@@ -33,7 +33,6 @@ import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -176,18 +175,13 @@ public class MainActivity extends Activity {
 					String token = client.GetLoginToken("omar", "ayub");
 					tv.setText(token);
 					//now try sending data with the token
-					Time startTime = new Time();
-					startTime.setToNow();
-					
-					List<Double> datas = new ArrayList<Double>();
+					List<Pair<Time, Double>> datas = new ArrayList<Pair<Time,Double>>();
 					for(double i = 0; i < 100; i++){
-						datas.add(i);
+						Time curDate = new Time();
+						curDate.setToNow();
+						datas.add(new Pair<Time,Double>(curDate,i));
 					}
-					
-					Time endTime = new Time();
-					endTime = new Time();
-					endTime.setToNow();
-					client.sendData(datas, startTime, endTime);
+					client.sendData(datas);
 					
 				}
         	});
@@ -244,24 +238,16 @@ public class MainActivity extends Activity {
     		return this.sessionToken;
     	}
     	
-    	public void sendData(List<Double> datas, Time startTime, Time endTime){
+    	public void sendData(List<Pair<Time, Double>> datas){
     		try{
-    			String URI = baseURL + "hbdata/add";
+    			String URI = baseURL + "/hbdata/add";
     			HttpPost request = new HttpPost(URI);
-    			/*List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+    			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     			nameValuePairs.add(new BasicNameValuePair("session_token", this.sessionToken));
     			for(Pair<Time, Double> d: datas){
     				nameValuePairs.add(new BasicNameValuePair(d.first.toString(), d.second.toString()));
-    			}*/
-    			//request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-    			JSONArray data = new JSONArray(datas);
-    			JSONObject json = new JSONObject();
-    			json.put("session_token", this.sessionToken);
-    			json.put("start_time", startTime.toString());
-    			json.put("end_time", endTime.toString());
-    			json.put("data", data);
-    			request.setHeader("Content-Type", "application/json");
-    			request.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
+    			}
+    			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
     			HttpResponse resp = httpClient.execute(request);
     		}catch(Exception ex){
     			
