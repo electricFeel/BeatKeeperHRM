@@ -1,4 +1,5 @@
 module.exports = function(app){
+	console.log('loading heartbeat data functions');
 	var mongo = require('mongodb');
 	var Server = mongo.Server;
 	var Db = mongo.Db; 
