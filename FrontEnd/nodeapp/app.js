@@ -3,6 +3,9 @@
 var express = require('express');
 var fs = require('fs');
 var mongo = require('mongodb');
+var _ = require('underscore');
+
+var token = [];
 
 
 /*var app = connect.createServer(
