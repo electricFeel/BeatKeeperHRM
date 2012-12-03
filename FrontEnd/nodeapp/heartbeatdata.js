@@ -19,7 +19,9 @@ module.exports = function(app, tokenMap){
 
         db.open(function(err, db){
         	db.collection('beat_date', function(err, collection){
-        		collection.insert({''});
+        		//var user = _.find(tokenMap, function(x){return x['token'] == token;});
+        		var user = tokenMap[token];
+        		collection.insert({'start_time':startTime, 'end_time':endTime, 'data':data, 'user':user});
         	});
         });
 
