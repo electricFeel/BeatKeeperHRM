@@ -26,7 +26,7 @@ module.exports = function(app, tokenMap){
 							var userName = result['user_name'];
 							db.collection('beat_data', function(err, beatData){
 								beatData.insert({'user_name':userName,
-								'start_time':startTime, 'endTime':endTim,
+								'start_time':startTime, 'endTime':endTime,
 								'data':data});
 							}
 						);
