@@ -35,10 +35,6 @@ module.exports = function(app, tokenMap){
 				});
 			});
         });
-
-        db.open(function(err,db){
-
-        });
 	});
 
 
