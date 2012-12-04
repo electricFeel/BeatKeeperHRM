@@ -90,7 +90,7 @@ app.post('/users/login', function (req, res) {
                   collection.update({'_id': result['_id']}, {$set:{'token':token}});
                   console.log("login worked!");
                   req.session.token = {"token":token,"user_name":result['user_name']};
-                  tokenMap.push({token:result['user_name']});
+                  //tokenMap.push({token:result['user_name']});
                   res.contentType('json');
                   res.send({session_token:token});
                 }
