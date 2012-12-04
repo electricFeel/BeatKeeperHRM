@@ -4,6 +4,7 @@ var mongo = require('mongodb');
 var Server = mongo.Server;
 var Db = mongo.Db;
 var uuid = require('node-uuid');
+var tm = tokenMap;
 console.log('loading users module');
 
 //'ec2-50-17-145-141.compute-1.amazonaws.com'

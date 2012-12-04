@@ -4,6 +4,7 @@ module.exports = function(app, tokenMap){
 	var Server = mongo.Server;
 	var Db = mongo.Db;
 	var _ = require('underscore');
+	var tm = tokenMap;
 
 	app.post('/hbdata/add', function(req, res){
 		var post = req.body;
@@ -18,11 +19,21 @@ module.exports = function(app, tokenMap){
         var db = new Db('beat_keeper', server);
 
         db.open(function(err, db){
-        	db.collection('beat_date', function(err, collection){
-        		//var user = _.find(tokenMap, function(x){return x['token'] == token;});
-        		var user = tokenMap[token];
-        		collection.insert({'start_time':startTime, 'end_time':endTime, 'data':data, 'user':user});
-        	});
+			db.collection('users', function(err, collection){
+				collection.findOne({'token':token}, function(err, result){
+					if(!err){
+						if(result !== null){
+							var userName = result['user_name'];
+							db.collection('beat_data', function(err, beatData){
+								beatData.insert({'user_name':userName,
+								'start_time':startTime, 'endTime':endTim,
+								'data':data});
+							}
+						);
+						}
+					}
+				});
+			});
         });
 
         db.open(function(err,db){

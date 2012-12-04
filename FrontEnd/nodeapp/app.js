@@ -5,7 +5,7 @@ var fs = require('fs');
 var mongo = require('mongodb');
 var _ = require('underscore');
 
-var token = [];
+var tokenMap = [];
 
 
 /*var app = connect.createServer(
