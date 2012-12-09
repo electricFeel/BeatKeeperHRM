@@ -56,11 +56,7 @@ module.exports = function(app, tokenMap){
 					var dateRanges = [];
 					for(var i = 0; i < items.length; i++){
 						var beatData = [];
-						for(var x = 1; x < 60; x++){
-							beatData.push([x, items[i]['data'][x]]);
-						}
-						//items[i]['data'].slice(1,59)
-						dateRanges.push([items[i]['start_time'].toGMTString(), items[i]['endTime'].toGMTString(), beatData]);
+						dateRanges.push([items[i]['start_time'].toGMTString(), items[i]['endTime'].toGMTString(), items[i]['data'].slice(1,59)]);
 					}
 					
 					//Provide it to the front end.
