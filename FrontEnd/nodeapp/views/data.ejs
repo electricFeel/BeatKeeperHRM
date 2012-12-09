@@ -1,6 +1,11 @@
 <% include header.ejs %>
+<script type="text/javascript">
+$('.target').change(function() {
+  alert('Handler for .change() called.');
+});
+</script>
 <form>
-	<select name="menu">
+	<select name="menu" class="target">
 		<% for (var i=0; i < dates.length; i++) { %>
 		<option value="<%=dates[i][2]%>"><%=dates[i][0]%>...<%=dates[i][1]%></option>
 		<%};%>
