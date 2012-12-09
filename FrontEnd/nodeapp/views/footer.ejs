@@ -23,9 +23,10 @@
 
                 <script type="text/javascript">
                     $('.target').change(function() {
-                        var val = $('.target').val();
-                      alert('Handler for .change() called.');
-                      alert('Value:' + val);
+                    var val = $('.target').val();
+                    var line = new RGraph.Line('cvs', val);
+                    line.Set('chart.labels', ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']);
+                    line.Draw();
                     });
                 </script>
     </body>
