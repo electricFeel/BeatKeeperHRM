@@ -49,11 +49,11 @@ module.exports = function(app, tokenMap){
 		db.open(function(err,db){
 			db.collection('beat_data', function(err, collection){
 				if(err) console.log('error found');
-				collection.find({'user_name':req.session.user_id}, function(err, collection){
+				collection.find({'user_name':req.session.user_id}, function(err, result){
 				//Get the dates of the first and last item in the collection and order the data
 				//Stringify the data
 				var dateRanges = [];
-				for(var i = 0; i < collection.length; i++){
+				for(var i = 0; i < result.length; i++){
 					date.push(collection[i]['start_time'], collection[i]['endTime']);
 				}
 				
