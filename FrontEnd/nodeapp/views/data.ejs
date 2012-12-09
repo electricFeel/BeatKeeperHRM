@@ -6,7 +6,7 @@
 </form>-->
 <ul>
 	<% for (var i=0; i < dates.length; i++) { %>
-		<li><%=dates[i].start_time%>...<%=dates[i].endTime%></li>
+		<li><%=dates[i][0]%>...<%=dates[i][1]%></li>
 	<%};%>
 </ul>
 <% include footer.ejs %>
