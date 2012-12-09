@@ -55,7 +55,7 @@ module.exports = function(app, tokenMap){
 					cursor.toArray(function(err, items){
 					var dateRanges = [];
 					for(var i = 0; i < items.length; i++){
-						dateRanges.push([items[i]['start_time'].toGMTString(), items[i]['endTime'].toGMTString(), items[i]['data']]);
+						dateRanges.push([items[i]['start_time'].toGMTString(), items[i]['endTime'].toGMTString(), items[i]['data'].slice(1,59)]);
 					}
 					
 					//Provide it to the front end.
