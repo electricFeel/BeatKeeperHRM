@@ -1,12 +1,14 @@
 <% include header.ejs %>
-<!--<form>
+<form>
 	<select name="menu">
-		<option value=""></option>
+		<% for (var i=0; i < dates.length; i++) { %>
+		<option value="<%=dates[i][2]%>"><%=dates[i][0]%>...<%=dates[i][1]%></option>
+		<%};%>
 	</select>
-</form>-->
+</form>
 <ul>
-	<% for (var i=0; i < dates.length; i++) { %>
+<!--	<% for (var i=0; i < dates.length; i++) { %>
 		<li><%=dates[i][0]%>...<%=dates[i][1]%></li>
 	<%};%>
-</ul>
+</ul>-->
 <% include footer.ejs %>
