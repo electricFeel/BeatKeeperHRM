@@ -44,7 +44,7 @@ module.exports = function(app, tokenMap){
 		{
 			res.render('login.ejs',{loggedIn:false, userName:''});
 		}
-		var server = new Server(mongoAddy, 27017, {auto_reconnect: true});
+		var server = new Server('localhost', 27017, {auto_reconnect: true});
 		var db = new Db('beat_keeper', server);
 		db.open(function(err,db){
 			db.collection('beat_data', function(err, collection){
