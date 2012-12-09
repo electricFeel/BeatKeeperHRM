@@ -7,7 +7,7 @@
 <ul>
 	<%= dates %>
 	<% for (var i in dates) { %>
-		<li><%=dates['start_time']%>...<%=dates['endTime']%></li>
+		<li><%=dates[i].start_time%>...<%=dates[i].endTime%></li>
 	<%};%>
 </ul>
 <% include footer.ejs %>
