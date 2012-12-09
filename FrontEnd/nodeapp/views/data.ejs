@@ -5,9 +5,9 @@
 	</select>
 </form>-->
 <ul>
-	<%= dateRanges %>
+	<%= dates %>
 	<% for (var i in dateRanges) { %>
-		<li><%=dateRanges[i]['start_time']%>...<%=dateRanges[i]['endTime']%></li>
+		<li><%=dates[i]['start_time']%>...<%=dates[i]['endTime']%></li>
 	<%};%>
 </ul>
 <% include footer.ejs %>

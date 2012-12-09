@@ -62,7 +62,7 @@ module.exports = function(app, tokenMap){
 					res.render('data.ejs',{
 						loggedIn:true,
 						userName:req.session.user_id,
-						dateRanges : dateRanges,
+						dates : dateRanges,
 						title: 'Heart beat data'
 					});
 					});
