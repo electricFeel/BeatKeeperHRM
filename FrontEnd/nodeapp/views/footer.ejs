@@ -25,11 +25,8 @@
                     $('.target').change(function() {
                     var val = $('.target').val();
                     val = val.split(',');
-                    beatData = []
-                    for(var i = 0; i < val.length; i++){
-                        beatData.push([i+1, val[i]]);
-                    }
-                    var line = new RGraph.Line('cvs', beatData);
+                    
+                    var line = new RGraph.Line('cvs', val);
                     line.Set('chart.labels', ['0s','10s','20s','30s','40s','50s','60s']);
                     line.Draw();
                     });
