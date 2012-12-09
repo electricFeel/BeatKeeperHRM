@@ -24,7 +24,7 @@
                 <script type="text/javascript">
                     $('.target').change(function() {
                     var val = $('.target').val();
-                    var line = new RGraph.Line('cvs', val);
+                    var line = new RGraph.Line('cvs', [val]);
                     line.Set('chart.labels', ['0s','10s','20s','30s','40s','50s','60s']);
                     line.Draw();
                     });
