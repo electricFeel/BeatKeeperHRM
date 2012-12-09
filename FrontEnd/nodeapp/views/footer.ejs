@@ -22,9 +22,11 @@
         </script>
 
                 <script type="text/javascript">
-$('.target').change(function() {
-  alert('Handler for .change() called.');
-});
-</script>
+                    $('.target').change(function() {
+                        var val = $('.target').val();
+                      alert('Handler for .change() called.');
+                      alert('Value:' + val);
+                    });
+                </script>
     </body>
 </html>
