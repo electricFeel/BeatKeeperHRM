@@ -49,21 +49,23 @@ module.exports = function(app, tokenMap){
 		db.open(function(err,db){
 			db.collection('beat_data', function(err, collection){
 				if(err) console.log('error found');
-				collection.find({'user_name':req.session.user_id}, function(err, result){
-				//Get the dates of the first and last item in the collection and order the data
-				//Stringify the data
-				var dateRanges = [];
-				for(var i = 0; i < result.length; i++){
-					date.push(collection[i]['start_time'], collection[i]['endTime']);
-				}
-				
-				//Provide it to the front end.
-				res.render('data.ejs',{
-					loggedIn:true,
-					userName:req.session.user_id,
-					dateRanges : dateRanges,
-					title: 'Heart beat data'
-				});
+					collection.find({'user_name':req.session.user_id}, function(err, cursor){
+					//Get the dates of the first and last item in the collection and order the data
+					//Stringify the data
+					cursor.toArray(function(err, items){
+					var dateRanges = [];
+					for(var i = 0; i < items.length; i++){
+						date.push(items[i]['start_time'], items[i]['endTime']);
+					}
+					
+					//Provide it to the front end.
+					res.render('data.ejs',{
+						loggedIn:true,
+						userName:req.session.user_id,
+						dateRanges : dateRanges,
+						title: 'Heart beat data'
+					});
+					});
 				});
 			});
 		});
