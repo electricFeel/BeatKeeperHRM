@@ -11,9 +11,9 @@ console.log('loading users module');
 var mongoServerAddress = 'localhost';
 
 //user routes
-app.get('/', function( req, res ){
+/*app.get('/', function( req, res ){
   res.send( 'Hello World' );
-});
+});*/
 
 
 
@@ -29,20 +29,34 @@ app.post( '/users/create', function ( req, res ) {
   var db = new Db('beat_keeper', server);
   db.open(function(err, db){
       db.collection('users', function(err, collection){
-      collection.insert(userRecord);
+      collection.insert(userRecord, function(){
+          res.render('register_thanks.ejs', {
+          title:'Thank you for registering!',
+          userName: userName,
+          loggedIn : false
+        });
+      });
+
     });
   });
 });
 
 app.get('/users/create', function(req, res){
-   var html = '<form method="post" action="/users/create" enctype="multipart/form-data">';
+   /*var html = '<form method="post" action="/users/create" enctype="multipart/form-data">';
     html +=  '<p><input type="text" name="user" /></p>';
     html +=  '<p><input type="text" name="password" /></p>';
     html +=  '<p><input type="submit" value="Upload" /></p>';
     html +=  '</form>';
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Length', Buffer.byteLength(html));
-    res.end(html);
+    res.end(html);*/
+    if(!req.session.user_id){
+      res.render('register.ejs', {
+        layout:'layout',
+        title:'Register a new user',
+        loggedIn:false
+      });
+    }
 });
 
 app.post('/users/login', function (req, res) {
@@ -59,7 +73,8 @@ app.post('/users/login', function (req, res) {
             if(result['password'] === post.password){
               console.log("login worked!");
               req.session.user_id = result['user_name'];
-              res.redirect('/my_secret_page');
+              console.log(req.session.user_id);
+              res.redirect('back');
             }
           }else{
             var html = 'Your username could not be found';
@@ -113,16 +128,18 @@ app.post('/users/login', function (req, res) {
   }*/
 });
 
-app.get('/users/login', function(req, res){ 
-  var html = '<form method="post" action="/users/login_token" enctype="multipart/form-data">'
+/*app.get('/users/login', function(req, res){ 
+  var html = '<form method="post" action="/users/login" enctype="multipart/form-data">'
       html +=  '<p><input type="text" name="user" /></p>'
       html +=  '<p><input type="text" name="password" /></p>'
       html +=  '<p><input type="submit" value="Upload" /></p>'
     html +=  '</form>';
+    
   res.setHeader('Content-Type', 'text/html');
     res.setHeader('Content-Length', Buffer.byteLength(html));
     res.end(html);
-  });
+
+  });*/
 
 app.get( '/users/read/:id', function ( req, res ) {
   res.contentType( 'json' );

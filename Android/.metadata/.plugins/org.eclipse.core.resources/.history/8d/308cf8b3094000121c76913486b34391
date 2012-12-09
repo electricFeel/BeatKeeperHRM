@@ -1,0 +1,144 @@
+package com.example.beatkeeperHRM;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.os.AsyncTask;
+import android.text.format.Time;
+import android.util.Log;
+
+public class HTTPClient{
+	HttpClient httpClient = new DefaultHttpClient();
+	String baseURL = "http://ec2-50-17-145-141.compute-1.amazonaws.com:3002/";
+	String sessionToken;
+	
+	public HTTPClient(){
+		
+	}
+	
+	public Boolean IsLoggedIn = false;
+	
+	
+	public String GetLoginToken(String userName, String password){
+		try{
+			// + "users/login_token"
+			String URI = baseURL + "users/login_token";
+			HttpPost request = new HttpPost(URI);
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+			nameValuePairs.add(new BasicNameValuePair("user", userName));
+			nameValuePairs.add(new BasicNameValuePair("password", password));
+			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			HttpResponse resp = httpClient.execute(request);
+			HttpEntity val = resp.getEntity();
+			System.out.println(val);
+			//String str_val =val.getContent().toString();
+			InputStream stream = val.getContent();
+			int readByte;
+			String output = "";
+			this.IsLoggedIn = true;
+			while((readByte = stream.read()) != -1){
+				output += (char)readByte;
+			}
+			
+			System.out.println(output);
+			JSONObject jsonArray = new JSONObject(output);
+			this.sessionToken = jsonArray.getString("session_token");
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+			System.out.println(ex.getStackTrace());
+		}
+		return this.sessionToken;
+	}
+	
+	public void sendData(List<Double> datas, Time startTime, Time endTime){
+		try{
+			String URI = baseURL + "hbdata/add";
+			HttpPost request = new HttpPost(URI);
+			/*List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("session_token", this.sessionToken));
+			for(Pair<Time, Double> d: datas){
+				nameValuePairs.add(new BasicNameValuePair(d.first.toString(), d.second.toString()));
+			}*/
+			//request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			/*JSONArray data = new JSONArray(datas);
+			JSONObject json = new JSONObject();
+			json.put("session_token", this.sessionToken);
+			json.put("start_time", startTime.toString());
+			json.put("end_time", endTime.toString());
+			json.put("data", data);
+			request.setHeader("Content-Type", "application/json");
+			request.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));*/
+			SendDataTuple tuple = new SendDataTuple();
+			tuple.datas = datas;
+			tuple.startTime = startTime;
+			tuple.endTime = endTime;
+			tuple.sessionToken = sessionToken;
+			tuple.URI = URI;
+			(new SendDataTask(tuple).doInBackground())
+			HttpResponse resp = httpClient.execute(request);
+		}catch(Exception ex){
+			Log.e(ex.getMessage(), ex.getStackTrace().toString());
+		}
+	}
+
+	public Boolean getIsLoggedIn() {
+		return IsLoggedIn;
+	}
+
+	public void setIsLoggedIn(Boolean isLoggedIn) {
+		IsLoggedIn = isLoggedIn;
+	}
+	
+	public class SendDataTuple{
+		public List<Double> datas;
+		public Time startTime;
+		public Time endTime;
+		public String sessionToken;
+		public String URI;
+	}
+	
+	private class SendDataTask extends AsyncTask<SendDataTuple, Void, Void>{
+
+		@Override
+		protected Void doInBackground(SendDataTuple... params) {
+			SendDataTuple tuple = params[0];
+			
+			HttpPost request = new HttpPost(tuple.URI);
+			/*List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("session_token", this.sessionToken));
+			for(Pair<Time, Double> d: datas){
+				nameValuePairs.add(new BasicNameValuePair(d.first.toString(), d.second.toString()));
+			}*/
+			//request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			try{
+				JSONArray data = new JSONArray(tuple.datas);
+				JSONObject json = new JSONObject();
+				json.put("session_token", tuple.sessionToken);
+				json.put("start_time", tuple.startTime.toString());
+				json.put("end_time", tuple.endTime.toString());
+				json.put("data", data);
+				request.setHeader("Content-Type", "application/json");
+				request.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
+			}catch(Exception ex){
+				Log.e("Error in asyncTask", ex.getMessage());
+			}
+			return null;
+		}
+
+		
+		
+	}
+}

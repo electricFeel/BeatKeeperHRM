@@ -2,6 +2,7 @@ package com.example.beatkeeperHRM;
 
 import android.app.Activity;
 
+import android.opengl.Visibility;
 import android.os.Bundle;
 
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
 
 import android.R.*;
 import android.app.Activity;
@@ -23,11 +25,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.*;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -52,16 +57,29 @@ public class MainActivity extends Activity {
 	private final int HEART_RATE = 0x100;
 	private final int INSTANT_SPEED = 0x101;	
 	private static final String SECURE_SETTINGS = android.Manifest.permission.WRITE_SECURE_SETTINGS;
+	int MAX_BUFFERED_HEARTRATES = 60*15; //15 min
+    public Time lastStartTime;
+    public List<Double> heartRateData = new ArrayList<Double>();
+    public HTTPClient client = new HTTPClient();
 	
-	
-	
+    public void checkIfLoggedIn(){
+    	if(client.IsLoggedIn){
+        	((View)findViewById(R.id.btnLogon)).setVisibility(View.GONE);
+        	((View)findViewById(R.id.tbPassword)).setVisibility(View.GONE);
+        	((View)findViewById(R.id.tbUserName)).setVisibility(View.GONE);
+        }
+    }
+    
+    public static MainActivity _instance;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        
+        _instance = this;
         /*this.enforceCallingOrSelfPermission(SECURE_SETTINGS,
                 "BLUETOOTH_ADMIN permission");*/
-        
         
         setContentView(R.layout.activity_main);
         /*Sending a message to android that we are going to initiate a pairing request*/
@@ -77,7 +95,54 @@ public class MainActivity extends Activity {
 		String ErrorText  = "Not Connected to HxM ! !";
 		 tv.setText(ErrorText);
 
-        Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
+        final Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
+        
+        ((TextView)findViewById(R.id.labelHeartRate)).addTextChangedListener(new TextWatcher(){
+        
+
+			public void afterTextChanged(Editable arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void beforeTextChanged(CharSequence arg0, int arg1,
+					int arg2, int arg3) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+					int arg3) {
+				/*if(client.IsLoggedIn){
+					if(heartRateData.size() == 0){
+						lastStartTime = new Time();
+						lastStartTime.setToNow();
+					}
+					try{
+						System.out.println("Attempting to save " + arg0.toString());
+					heartRateData.add(Double.parseDouble(arg0.toString()));
+					}catch(Exception ex){
+						//supress the number format exception
+						System.out.println(ex.getMessage());
+						System.out.println(ex.getStackTrace());
+						
+					}
+					try{
+					if(heartRateData.size() >= MAX_BUFFERED_HEARTRATES){
+						//time to send the data
+						Time endTime = new Time();
+						endTime.setToNow();
+						List<Double> tmpData = new ArrayList(((ArrayList)heartRateData)); 
+						heartRateData.clear();
+						client.sendData(tmpData, lastStartTime, endTime);
+						
+					}
+					}catch(Exception ex){
+						Log.e("Error when clearing the heartRateData", ex.getMessage());
+					}
+				}*/
+			}});
+        
         if (btnConnect != null)
         {
         	btnConnect.setOnClickListener(new OnClickListener() {
@@ -108,8 +173,13 @@ public class MainActivity extends Activity {
         			BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
         			String DeviceName = Device.getName();
         			_bt = new BTClient(adapter, BhMacID);
-        			_NConnListener = new NewConnectedListener(Newhandler,Newhandler);
+        			
+        			BTWatcherTimerTask timerTask = new BTWatcherTimerTask(_bt, MainActivity._instance);
+        			
+        			_NConnListener = new NewConnectedListener(Newhandler, Newhandler, client);
+        			
         			_bt.addConnectedEventListener(_NConnListener);
+        			
         			
         			TextView tv1 = (TextView)findViewById(R.id.labelHeartRate);
         			tv1.setText("000");
@@ -117,35 +187,24 @@ public class MainActivity extends Activity {
         			 tv1 = (TextView)findViewById(R.id.labelInstantSpeed);
         			 tv1.setText("0.0");
         			 
-        			 //tv1 = 	(EditText)findViewById(R.id.labelSkinTemp);
-        			 //tv1.setText("0.0");
-        			 
-        			 //tv1 = 	(EditText)findViewById(R.id.labelPosture);
-        			 //tv1.setText("000");
-        			 
-        			 //tv1 = 	(EditText)findViewById(R.id.labelPeakAcc);
-        			 //tv1.setText("0.0");
-        			if(_bt.IsConnected())
+        			 if(_bt.IsConnected())
         			{
         				_bt.start();
         				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
         				String ErrorText  = "Connected to HxM "+DeviceName;
-						 tv.setText(ErrorText);
-						 
-						 //Reset all the values to 0s
-
+						tv.setText(ErrorText);
         			}
         			else
         			{
         				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
         				String ErrorText  = "Unable to Connect !";
-						 tv.setText(ErrorText);
+						tv.setText(ErrorText);
         			}
         		}
         	});
         }
         /*Obtaining the handle to act on the DISCONNECT button*/
-        Button btnDisconnect = (Button) findViewById(R.id.ButtonDisconnect);
+        final Button btnDisconnect = (Button) findViewById(R.id.ButtonDisconnect);
         if (btnDisconnect != null)
         {
         	btnDisconnect.setOnClickListener(new OnClickListener() {
@@ -167,13 +226,17 @@ public class MainActivity extends Activity {
         	});
         }
         
-        Button btnLogin = (Button) findViewById(R.id.btnLogin);
+        final Button btnLogin = (Button) findViewById(R.id.btnLogin);
         if(btnLogin != null){
         	btnLogin.setOnClickListener(new OnClickListener(){
 				public void onClick(View v) {
 					//test logging into the server here
-					HTTPClient client = new HTTPClient();
-					String token = client.GetLoginToken("omar", "ayub");
+					/*HTTPClient client = new HTTPClient();
+					EditText etUserName = (EditText) findViewById(R.id.tbUserName);
+					EditText etPassWord = (EditText) findViewById(R.id.tbPassword);
+					String user = etUserName.getText().toString();
+					String password = etPassWord.getText().toString();
+					String token = client.GetLoginToken(user, password);
 					tv.setText(token);
 					//now try sending data with the token
 					Time startTime = new Time();
@@ -187,11 +250,48 @@ public class MainActivity extends Activity {
 					Time endTime = new Time();
 					endTime = new Time();
 					endTime.setToNow();
-					client.sendData(datas, startTime, endTime);
+					client.sendData(datas, startTime, endTime);*/
 					
 				}
         	});
+        	
+        	
+        	final Button btnLogon = (Button)findViewById(R.id.btnLogon);
+        	if(btnLogon != null){
+        		btnLogon.setOnClickListener(new OnClickListener(){
+        			public void onClick(View v){
+    					EditText etUserName = (EditText) findViewById(R.id.tbUserName);
+    					EditText etPassWord = (EditText) findViewById(R.id.tbPassword);
+    					String user = etUserName.getText().toString().trim();
+    					String password = etPassWord.getText().toString().trim();
+    					String token = client.GetLoginToken(user, password);
+    					
+    					if(client.IsLoggedIn){
+    						etUserName.setVisibility(View.GONE);
+    						etPassWord.setVisibility(View.GONE);
+    						btnLogon.setVisibility(View.GONE);
+    						btnConnect.setVisibility(View.VISIBLE);
+    						btnDisconnect.setVisibility(View.VISIBLE);
+    						//LayoutGroup vg = (LayoutGroup)findViewById(R.id.)
+    						ViewGroup lg = (ViewGroup)findViewById(R.id.layoutGroup);
+    						//lg.invalidate();
+    						etUserName.invalidate();
+    						etPassWord.invalidate();
+    						btnLogon.invalidate();
+    						btnConnect.invalidate();
+    						btnDisconnect.invalidate();
+    						
+    						etUserName.postInvalidate();
+    						btnConnect.postInvalidate();
+    						lg.postInvalidate();
+    					}
+        			}
+        		});
+        	}
         }
+        
+        btnConnect.setVisibility(0);
+        btnDisconnect.setVisibility(1);
     }
     private class BTBondReceiver extends BroadcastReceiver {
 		@Override
@@ -202,72 +302,7 @@ public class MainActivity extends Activity {
 		}
     }
     
-    private class HTTPClient{
-    	HttpClient httpClient = new DefaultHttpClient();
-    	String baseURL = "http://ec2-50-17-145-141.compute-1.amazonaws.com:3002/";
-    	String sessionToken;
-    	
-    	public HTTPClient(){
-    		
-    	}
-    	
-    	
-    	
-    	public String GetLoginToken(String userName, String password){
-    		try{
-    			// + "users/login_token"
-    			String URI = baseURL + "users/login_token";
-    			HttpPost request = new HttpPost(URI);
-    			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-    			nameValuePairs.add(new BasicNameValuePair("user", userName));
-    			nameValuePairs.add(new BasicNameValuePair("password", password));
-    			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-    			HttpResponse resp = httpClient.execute(request);
-    			HttpEntity val = resp.getEntity();
-    			System.out.println(val);
-    			//String str_val =val.getContent().toString();
-    			InputStream stream = val.getContent();
-    			int readByte;
-    			String output = "";
-    			
-    			while((readByte = stream.read()) != -1){
-    				output += (char)readByte;
-    			}
-    			
-    			System.out.println(output);
-    			JSONObject jsonArray = new JSONObject(output);
-    			this.sessionToken = jsonArray.getString("session_token");
-    		}catch(Exception ex){
-    			System.out.println(ex.getMessage());
-    			System.out.println(ex.getStackTrace());
-    		}
-    		return this.sessionToken;
-    	}
-    	
-    	public void sendData(List<Double> datas, Time startTime, Time endTime){
-    		try{
-    			String URI = baseURL + "hbdata/add";
-    			HttpPost request = new HttpPost(URI);
-    			/*List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-    			nameValuePairs.add(new BasicNameValuePair("session_token", this.sessionToken));
-    			for(Pair<Time, Double> d: datas){
-    				nameValuePairs.add(new BasicNameValuePair(d.first.toString(), d.second.toString()));
-    			}*/
-    			//request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-    			JSONArray data = new JSONArray(datas);
-    			JSONObject json = new JSONObject();
-    			json.put("session_token", this.sessionToken);
-    			json.put("start_time", startTime.toString());
-    			json.put("end_time", endTime.toString());
-    			json.put("data", data);
-    			request.setHeader("Content-Type", "application/json");
-    			request.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
-    			HttpResponse resp = httpClient.execute(request);
-    		}catch(Exception ex){
-    			
-    		}
-    	}
-    }
+    
     
     private class BTBroadcastReceiver extends BroadcastReceiver {
 		@Override
@@ -304,24 +339,26 @@ public class MainActivity extends Activity {
     
 
     final  Handler Newhandler = new Handler(){
+    	
     	public void handleMessage(Message msg)
     	{
     		TextView tv;
     		switch (msg.what)
     		{
-    		case HEART_RATE:
-    			String HeartRatetext = msg.getData().getString("HeartRate");
-    			tv = (TextView)findViewById(R.id.labelHeartRate);
-    			System.out.println("Heart Rate Info is "+ HeartRatetext);
-    			if (tv != null)tv.setText(HeartRatetext);
-    		break;
-    		
-    		case INSTANT_SPEED:
-    			String InstantSpeedtext = msg.getData().getString("InstantSpeed");
-    			tv = (TextView)findViewById(R.id.labelInstantSpeed);
-    			if (tv != null)tv.setText(InstantSpeedtext);
-    		
-    		break;
+	    		case HEART_RATE:
+	    			String HeartRatetext = msg.getData().getString("HeartRate");
+	    			tv = (TextView)findViewById(R.id.labelHeartRate);
+	    			System.out.println("Heart Rate is "+ HeartRatetext);
+	    			if (tv != null)tv.setText(HeartRatetext);
+	    			
+	    		break;
+	    		
+	    		case INSTANT_SPEED:
+	    			String InstantSpeedtext = msg.getData().getString("InstantSpeed");
+	    			tv = (TextView)findViewById(R.id.labelInstantSpeed);
+	    			if (tv != null)tv.setText(InstantSpeedtext);
+	    		
+	    		break;
     		
     		}
     	}

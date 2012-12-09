@@ -1,0 +1,12 @@
+<% include header.ejs %>
+<!--<form>
+	<select name="menu">
+		<option value=""></option>
+	</select>
+</form>-->
+<ul>
+	<% for (var i in dateRanges) { %>
+		<li><%=i[0]%>...<%=i[1]%></li>
+	<%};%>
+</ul>
+<% include footer.ejs %>

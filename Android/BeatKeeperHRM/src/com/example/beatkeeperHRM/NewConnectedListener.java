@@ -1,16 +1,27 @@
 package com.example.beatkeeperHRM;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.Time;
+import android.util.Log;
 import android.widget.TextView;
 import zephyr.android.HxMBT.*;
 
 public class NewConnectedListener extends ConnectListenerImpl
 {
+
+	private HTTPClient client;
+	private List<Double> heartRateData = new ArrayList<Double>();
+	private Time lastStartTime;
+	private Time endTime;
+	private int MAX_BUFFERED_HEARTRATES = 30;
 	private Handler _OldHandler;
 	private Handler _aNewHandler; 
 	private int GP_MSG_ID = 0x20;
@@ -20,14 +31,15 @@ public class NewConnectedListener extends ConnectListenerImpl
 	private final int HEART_RATE = 0x100;
 	private final int INSTANT_SPEED = 0x101;
 	private HRSpeedDistPacketInfo HRSpeedDistPacket = new HRSpeedDistPacketInfo();
-	public NewConnectedListener(Handler handler,Handler _NewHandler) {
+	public NewConnectedListener(Handler handler,Handler _NewHandler, HTTPClient _client) {
 		super(handler, null);
 		_OldHandler= handler;
 		_aNewHandler = _NewHandler;
-
+		this.client = _client;
 		// TODO Auto-generated constructor stub
 
 	}
+	
 	public void Connected(ConnectedEvent<BTClient> eventArgs) {
 		System.out.println(String.format("Connected to BioHarness %s.", eventArgs.getSource().getDevice().getName()));
 
@@ -73,9 +85,38 @@ public class NewConnectedListener extends ConnectListenerImpl
 					_aNewHandler.sendMessage(text1);
 					System.out.println("Instant Speed is "+ InstantSpeed);
 					
+					if(client.IsLoggedIn){
+						if(heartRateData.size() == 0){
+							lastStartTime = new Time();
+							lastStartTime.setToNow();
+						}
+						try{
+							System.out.println("Attempting to save " + HRate);
+						heartRateData.add(((double)HRate));
+						}catch(Exception ex){
+							//supress the number format exception
+							System.out.println(ex.getMessage());
+							System.out.println(ex.getStackTrace());
+							
+						}
+						try{
+						if(heartRateData.size() >= MAX_BUFFERED_HEARTRATES){
+							//time to send the data
+							Time endTime = new Time();
+							endTime.setToNow();
+							List<Double> tmpData = new ArrayList(((ArrayList)heartRateData)); 
+							heartRateData.clear();
+							client.sendData(tmpData, lastStartTime, endTime);
+							
+						}
+						}catch(Exception ex){
+							Log.e("Error when clearing the heartRateData", ex.getMessage());
+						}
 				}
 			}
+		}
 		});
 	}
-	
 }
+	
+			

@@ -1,0 +1,24 @@
+package com.example.beatkeeperHRM;
+
+import java.util.TimerTask;
+
+import zephyr.android.HxMBT.BTClient;
+
+public class BTWatcherTimerTask extends TimerTask{
+
+	BTClient _bt;
+	MainActivity _main;
+	
+	public BTWatcherTimerTask(BTClient client, MainActivity activity){
+		_bt = client;
+		_main = activity;
+	}
+	
+	@Override
+	public void run() {
+		if(!_bt.isAlive()){
+			
+		}
+	}
+
+}

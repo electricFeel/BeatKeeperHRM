@@ -1,0 +1,9 @@
+<% include header.ejs %>
+<p>In order to take advantage of BeatKeeper's data logging capabilties you need to register a
+	new user account and then you those login credientials on your phone. Please register below.</p>
+<form method="post" action="/users/create" enctype="multipart/form-data">
+	<p><input type="text" name="user" placeholder="User Name"/> </p>
+	<p><input type="text" name="password" placeholder="Password"/> </p>
+	<p><input type="submit" name="register" text="Register"></input></p>
+</form>
+<% include footer.ejs %>

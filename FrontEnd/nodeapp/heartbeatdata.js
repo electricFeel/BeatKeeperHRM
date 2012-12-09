@@ -6,6 +6,8 @@ module.exports = function(app, tokenMap){
 	var _ = require('underscore');
 	var tm = tokenMap;
 
+	var mongoAddy = 'ec2-50-17-145-141.compute-1.amazonaws.com/beat_keeper';
+
 	app.post('/hbdata/add', function(req, res){
 		var post = req.body;
 		var token = post.session_token;
@@ -16,9 +18,9 @@ module.exports = function(app, tokenMap){
 
 
 		var server = new Server('localhost', 27017, {auto_reconnect: true});
-        var db = new Db('beat_keeper', server);
+		var db = new Db('beat_keeper', server);
 
-        db.open(function(err, db){
+		db.open(function(err, db){
 			db.collection('users', function(err, collection){
 				collection.findOne({'token':token}, function(err, result){
 					if(!err){
@@ -34,7 +36,36 @@ module.exports = function(app, tokenMap){
 					}
 				});
 			});
-        });
+		});
+	});
+
+	app.get('/hbdata/serve', function(req, res){
+		if(!req.session.user_id)
+		{
+			res.render('login.ejs',{loggedIn:false, userName:''});
+		}
+		var server = new Server(mongoAddy, 27017, {auto_reconnect: true});
+		var db = new Db('beat_keeper', server);
+		db.open(function(err,db){
+			db.collection('beat_data', function(err, collection){
+				if(err) console.log('error found');
+				collection.find({'user_name':req.params.userid}, function(err, collection){
+				//Get the dates of the first and last item in the collection and order the data
+				//Stringify the data
+				var dateRanges = [];
+				for(var i = 0; i < collection.length; i++){
+					date.push(collection[i]['start_time'], collection[i]['endTime']);
+				}
+				
+				//Provide it to the front end.
+				res.render('data.ejs',{
+					loggedIn:true,
+					userName:req.session.user_id,
+					dateRanges : dateRanges
+				});
+				});
+			});
+		});
 	});
 
 
