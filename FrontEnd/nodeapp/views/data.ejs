@@ -6,8 +6,8 @@
 </form>-->
 <ul>
 	<%= dates %>
-	<% for (var i in dateRanges) { %>
-		<li><%=dates[i]['start_time']%>...<%=dates[i]['endTime']%></li>
+	<% for (var i in dates) { %>
+		<li><%=dates['start_time']%>...<%=dates['endTime']%></li>
 	<%};%>
 </ul>
 <% include footer.ejs %>
