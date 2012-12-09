@@ -5,6 +5,7 @@
 	</select>
 </form>-->
 <ul>
+	<%= dateRanges %>
 	<% for (var i in dateRanges) { %>
 		<li><%=dateRanges[i]['start_time']%>...<%=dateRanges[i]['endTime']%></li>
 	<%};%>
